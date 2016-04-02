@@ -30,6 +30,13 @@ class ReflexAgent(Agent):
         #A capable reflex agent will have to consider both food locations and ghost locations to perform well.
         #Your agent should easily and reliably clear the testClassic layout
 
+    def closestDotDistance(self, pos1, foodlist):
+        min = 0
+        for food in foodlist:
+            distance = manhattanDistance(pos1, food)
+            if distance > min:
+                min = distance
+        return min
 
     def getAction(self, gameState):
         """
@@ -48,6 +55,7 @@ class ReflexAgent(Agent):
         bestScore = max(scores)
         bestIndices = [index for index in range(len(scores)) if scores[index] == bestScore]
         chosenIndex = random.choice(bestIndices) # Pick randomly among the best
+        #chosenIndex = bestIndices[0]
 
         "Add more of your code here if you want to"
 
@@ -72,58 +80,97 @@ class ReflexAgent(Agent):
         successorGameState = currentGameState.generatePacmanSuccessor(action)
         newPos = successorGameState.getPacmanPosition()
         newFood = successorGameState.getFood()
+        currentFood = currentGameState.getFood()
         newGhostStates = successorGameState.getGhostStates()
         newScaredTimes = [ghostState.scaredTimer for ghostState in newGhostStates]
-
+        walls = successorGameState.data.layout.walls.data
         "*** YOUR CODE HERE ***"
+
         score = 0
         x,y = newPos
 
-        for ghost in newGhostStates:
-            gx, gy = ghost.configuration.pos
-            score += manhattanDistance((gx, gy), newPos)
-            direction = ghost.configuration.direction
-            # if direction == 'North':
-            #
-            # elif direction == 'South':
-            #
-            # elif direction == 'East':
-            #
-            # elif direction == 'West':
-
-
-        # for food in newFood:
-        #     print food
-
-        # if newFood[x][y] == True:
-        #     score += 25
-        # else:
-        #     score -= 5
-
+        r = 2
         w = newFood.width
         h = newFood.height
-        r = 3
 
-        for i in range(0,w):
-            for j in range(0,h):
-                if newFood[i][j] == True:
-                    score += 5
-                else:
-                    score -= 5
+        if action == 'Stop':
+            score -= 50
+        # elif action == 'North':
+        #     for n in range(y, h):
+        #         if walls[x][n]:
+        #             break
+        #         if newFood[x][n]:
+        #             score += 1
+        # elif action == 'East':
+        #     for e in range(x, w):
+        #         if walls[e][y]:
+        #             break
+        #         if newFood[e][y]:
+        #             score += 1
+        # elif action == 'West':
+        #     for w in range(x, 0, -1):
+        #         if walls[w][y]:
+        #             break
+        #         if newFood[w][y]:
+        #             score += 1
+        # elif action == 'South':
+        #     for s in range(y, 0, -1):
+        #         if walls[x][s]:
+        #             break
+        #         if newFood[x][s]:
+        #             score += 1
+
+
+        if currentFood[x][y]:
+            score += 9999
+        else:
+            score -= closestDot(newPos, currentFood)
+
+        # capsules = currentGameState.data.capsules
+        # for capsule in capsules:
+        #     cx, cy = capsule
+        #     score += manhattanDistance((cx, cy), newPos)
+
+        for ghost in newGhostStates:
+            gx, gy = ghost.configuration.pos
+            if gx == x and gy == y:
+                score -= 99999999999999
+            ghostPenalty = manhattanDistance(newPos, ghost.configuration.pos)
+            #score += ghostPenalty
+            direction = ghost.configuration.direction
+
+        print 'Action: ', action
+        print 'Score: ', score
+        print'----------------'
+        return score
 
 
 
+def closestDot(pos1, foodlist):
+    min = 99999
+    rx = 0
+    ry = 0
 
-        # for property, value in vars(newFood).iteritems():
-        #     print property, ": ", value
+    for x in range(0, foodlist.width):
+        for y in range(0, foodlist.height):
+            if foodlist[x][y]:
+                distance = euclideanDistance(pos1, (x, y))
+                # print distance, min
+                if distance < min:
+                    min = distance
+                    rx = x
+                    ry = y
 
-        # return successorGameState.getScore()
+    print "Furthest: ",rx ,ry
+    print "Distance: ", min
+    return min
 
-    def manhattanDistance(pos1, pos2):
-        xy1 = pos1
-        xy2 = pos2
-        return abs(xy1[0] - xy2[0]) + abs(xy1[1] - xy2[1])
-        # return ( (xy1[0] - xy2[0]) ** 2 + (xy1[1] - xy2[1]) ** 2 ) ** 0.5
+def euclideanDistance(position1, position2):
+    "The Euclidean distance heuristic for a PositionSearchProblem"
+    xy1 = position1
+    xy2 = position2
+    return ( (xy1[0] - xy2[0]) ** 2 + (xy1[1] - xy2[1]) ** 2 ) ** 0.5
+
 
 def scoreEvaluationFunction(currentGameState):
     """
