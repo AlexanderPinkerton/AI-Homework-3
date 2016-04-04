@@ -207,6 +207,23 @@ class MinimaxAgent(MultiAgentSearchAgent):
       Your minimax agent (question 2)
     """
 
+    def value(self, state):
+        print 'test'
+
+
+    def minvalue(self, state):
+        v = -9999999999
+        for successor in state.getLegalActions(1):
+            v = min(v, self.evaluationFunction(successor))
+        return v
+
+    def maxvalue(self, state):
+        v = 9999999999
+        for successor in state.getLegalActions(0):
+            v = max(v, self.evaluationFunction(successor))
+        return v
+
+
     def getAction(self, gameState):
         """
           Returns the minimax action from the current gameState using self.depth
@@ -225,6 +242,20 @@ class MinimaxAgent(MultiAgentSearchAgent):
             Returns the total number of agents in the game
         """
         "*** YOUR CODE HERE ***"
+
+        depth = self.depth
+        index = self.index
+
+        #For all possible actions, get minimax
+
+
+
+
+
+
+
+
+
         util.raiseNotDefined()
 
 class AlphaBetaAgent(MultiAgentSearchAgent):
