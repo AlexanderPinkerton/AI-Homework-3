@@ -221,8 +221,9 @@ class MinimaxAgent(MultiAgentSearchAgent):
         return v
 
     def value(self, state, depth, index):
-        if depth == 0:
-            return self.evaluationFunction(state)
+        #If state is terminal: return state utility
+        # if next agent is MAX, do return max
+        # if next agent is MIN, do return min
 
 
 
