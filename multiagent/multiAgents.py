@@ -207,21 +207,26 @@ class MinimaxAgent(MultiAgentSearchAgent):
       Your minimax agent (question 2)
     """
 
-    def value(self, state):
-        print 'test'
 
-
-    def minvalue(self, state):
+    def minvalue(self, state, index, depth):
         v = -9999999999
         for successor in state.getLegalActions(1):
-            v = min(v, self.evaluationFunction(successor))
+            v = min(v, self.value(successor, index, depth - 1))
         return v
 
-    def maxvalue(self, state):
+    def maxvalue(self, state, index, depth):
         v = 9999999999
         for successor in state.getLegalActions(0):
-            v = max(v, self.evaluationFunction(successor))
+            v = max(v, self.value(successor, index, depth - 1))
         return v
+
+    def value(self, state, depth, index):
+        if depth == 0:
+            return self.evaluationFunction(state)
+
+
+
+
 
 
     def getAction(self, gameState):
@@ -246,7 +251,12 @@ class MinimaxAgent(MultiAgentSearchAgent):
         depth = self.depth
         index = self.index
 
-        #For all possible actions, get minimax
+        print "Depth: ", depth
+        for action in gameState.getLegalActions(index):
+            sucState = gameState.generateSuccessor(index, action)
+            #do minimax on each state
+
+
 
 
 
