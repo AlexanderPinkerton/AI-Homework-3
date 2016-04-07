@@ -208,25 +208,44 @@ class MinimaxAgent(MultiAgentSearchAgent):
     """
 
 
-    def minvalue(self, state, index, depth):
-        v = -9999999999
-        for successor in state.getLegalActions(1):
-            v = min(v, self.value(successor, index, depth - 1))
-        return v
-
-    def maxvalue(self, state, index, depth):
+    def minvalue(self, state, agent, depth):
         v = 9999999999
-        for successor in state.getLegalActions(0):
-            v = max(v, self.value(successor, index, depth - 1))
+        for action in state.getLegalActions(agent):
+            successor = state.generateSuccessor(agent, action)
+            v = min(v, self.minimax(successor, agent, depth))
         return v
 
-    def value(self, state, depth, index):
+    def maxvalue(self, state, agent, depth):
+        v = -9999999999
+        for action in state.getLegalActions(agent):
+            successor = state.generateSuccessor(agent, action)
+            v = max(v, self.minimax(successor, agent, depth))
+        return v
+
+    def minimax(self, state, agent, depth):
         #If state is terminal: return state utility
         # if next agent is MAX, do return max
         # if next agent is MIN, do return min
+        #print "layer: ", depth
+        #print "agent: ", index
+        #print self.ghosts
+        if depth == 0:
+            #print "bottom hit at depth: ", depth
+            return self.evaluationFunction(state)
 
+        print "Minimax -- Agent: ", agent, " Depth: ", depth
 
-
+        if agent == 0 or agent == self.ghosts+1:
+            #MAX Agent
+            print "Max-Layer -- Depth: ", depth
+            return self.maxvalue(state, agent+1, depth-1)
+        else:
+            #MIN Agent
+            print "Min-Layer -- Depth: ", depth
+            if agent == self.ghosts:
+                return self.maxvalue(state, 0, depth-1)
+            else:
+                return self.minvalue(state, agent+1, depth)
 
 
 
@@ -248,26 +267,19 @@ class MinimaxAgent(MultiAgentSearchAgent):
             Returns the total number of agents in the game
         """
         "*** YOUR CODE HERE ***"
-
+        #Manual max layer
+        actions = {}
         depth = self.depth
-        index = self.index
+        agent = self.index
+        self.ghosts = gameState.getNumAgents() - 1
 
-        print "Depth: ", depth
-        for action in gameState.getLegalActions(index):
-            sucState = gameState.generateSuccessor(index, action)
-            #do minimax on each state
+        for action in gameState.getLegalActions(agent):
+            #This should perform the min layers first.
+            actions[self.minimax(gameState, agent+1, depth-1)] = action
 
+        return actions[max(actions)]
 
-
-
-
-
-
-
-
-
-
-        util.raiseNotDefined()
+        #util.raiseNotDefined()
 
 class AlphaBetaAgent(MultiAgentSearchAgent):
     """
