@@ -207,28 +207,6 @@ class MinimaxAgent(MultiAgentSearchAgent):
       Your minimax agent (question 2)
     """
 
-    # def maxvalue(self, gameState, depth):
-    #     if gameState.isWin() or gameState.isLose() or depth == 0:
-    #         return self.evaluationFunction(gameState)
-    #     v = -(float("inf"))
-    #     legalActions = gameState.getLegalActions(0)
-    #     for action in legalActions:
-    #         v = max(v, self.minvalue(gameState.generateSuccessor(0, action), depth - 1, 1))
-    #     return v
-    #
-    # def minvalue(self, gameState, agentindex, depth ):
-    #     if gameState.isWin() or gameState.isLose() or depth == 0:
-    #         return self.evaluationFunction(gameState)
-    #     v = float("inf")
-    #     legalActions = gameState.getLegalActions(agentindex)
-    #     if agentindex == self.ghosts:
-    #         for action in legalActions:
-    #             v = min(v, self.maxvalue(gameState.generateSuccessor(agentindex, action), depth - 1))
-    #     else:
-    #         for action in legalActions:
-    #             v = min(v,self. minvalue(gameState.generateSuccessor(agentindex, action), agentindex + 1, depth))
-    #     return v
-
     def minvalue(self, state, agent, depth):
         v = 9999999999
         for action in state.getLegalActions(agent):
@@ -255,15 +233,15 @@ class MinimaxAgent(MultiAgentSearchAgent):
         if depth == 0 or state.isWin() or state.isLose():
             return self.evaluationFunction(state)
 
-        if currentAgent == self.ghosts:
+        if currentAgent == self.ghosts+1:
             currentAgent = 0
 
         if currentAgent == 0:
             #print "MIN -- Agent: ", currentAgent, " Depth: ", depth
-            return self.minvalue(state, currentAgent+1, depth)
+            return self.minvalue(state, currentAgent+1, depth-1)
         else:
             #print "MAX -- Agent: ", currentAgent, " Depth: ", depth
-            return self.maxvalue(state, currentAgent+1, depth-1)
+            return self.maxvalue(state, currentAgent+1, depth)
 
 
 
@@ -285,7 +263,6 @@ class MinimaxAgent(MultiAgentSearchAgent):
             Returns the total number of agents in the game
         """
         "*** YOUR CODE HERE ***"
-        #Manual max layer
         actions = {}
         depth = self.depth
         agent = self.index
