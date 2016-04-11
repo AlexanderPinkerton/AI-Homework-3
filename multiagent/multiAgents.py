@@ -85,7 +85,6 @@ class ReflexAgent(Agent):
         newScaredTimes = [ghostState.scaredTimer for ghostState in newGhostStates]
         walls = successorGameState.data.layout.walls.data
         "*** YOUR CODE HERE ***"
-
         score = 0
         x,y = newPos
 
@@ -95,31 +94,6 @@ class ReflexAgent(Agent):
 
         if action == 'Stop':
             score -= 50
-        # elif action == 'North':
-        #     for n in range(y, h):
-        #         if walls[x][n]:
-        #             break
-        #         if newFood[x][n]:
-        #             score += 1
-        # elif action == 'East':
-        #     for e in range(x, w):
-        #         if walls[e][y]:
-        #             break
-        #         if newFood[e][y]:
-        #             score += 1
-        # elif action == 'West':
-        #     for w in range(x, 0, -1):
-        #         if walls[w][y]:
-        #             break
-        #         if newFood[w][y]:
-        #             score += 1
-        # elif action == 'South':
-        #     for s in range(y, 0, -1):
-        #         if walls[x][s]:
-        #             break
-        #         if newFood[x][s]:
-        #             score += 1
-
 
         if currentFood[x][y]:
             score += 9999
@@ -135,13 +109,10 @@ class ReflexAgent(Agent):
             gx, gy = ghost.configuration.pos
             if gx == x and gy == y:
                 score -= 99999999999999
-            ghostPenalty = manhattanDistance(newPos, ghost.configuration.pos)
-            #score += ghostPenalty
-            direction = ghost.configuration.direction
 
-        print 'Action: ', action
-        print 'Score: ', score
-        print'----------------'
+        # print 'Action: ', action
+        # print 'Score: ', score
+        # print'----------------'
         return score
 
 
@@ -161,8 +132,8 @@ def closestDot(pos1, foodlist):
                     rx = x
                     ry = y
 
-    print "Furthest: ",rx ,ry
-    print "Distance: ", min
+    #print "Furthest: ",rx ,ry
+    #print "Distance: ", min
     return min
 
 def euclideanDistance(position1, position2):
@@ -260,10 +231,10 @@ class MinimaxAgent(MultiAgentSearchAgent):
         agent = self.index
         self.ghosts = gameState.getNumAgents() - 1
 
+        # Separate MAX layer to pull out actions.
         for action in gameState.getLegalActions(agent):
             successor = gameState.generateSuccessor(agent, action)
-            val = self.minimax(successor, agent + 1, depth + 1)
-            actions[val] = action
+            actions[self.minimax(successor, agent + 1, depth + 1)] = action
         return actions[max(actions)]
 
         #util.raiseNotDefined()
@@ -285,6 +256,34 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
       Your expectimax agent (question 4)
     """
 
+    def expvalue(self, state, agent, depth):
+        v = 0
+        for action in state.getLegalActions(agent):
+            successor = state.generateSuccessor(agent, action)
+            v += self.expectimax(successor, agent + 1, depth + 1)
+        return v / len(state.getLegalActions(agent))
+
+    def maxvalue(self, state, agent, depth):
+        v = -999999999
+        for action in state.getLegalActions(agent):
+            successor = state.generateSuccessor(agent, action)
+            v = max(v, self.expectimax(successor, agent + 1, depth + 1))
+        return v
+
+    def expectimax(self, state, currentAgent, depth):
+
+        if currentAgent == self.ghosts + 1:
+            currentAgent = 0
+
+        if depth == (self.depth * (self.ghosts + 1)) or state.isWin() or state.isLose():
+            return self.evaluationFunction(state)
+
+        if currentAgent == 0:
+            return self.maxvalue(state, currentAgent, depth)
+        else:
+            return self.expvalue(state, currentAgent, depth)
+
+
     def getAction(self, gameState):
         """
           Returns the expectimax action using self.depth and self.evaluationFunction
@@ -293,7 +292,17 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
           legal moves.
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        actions = {}
+        depth = 0
+        agent = self.index
+        self.ghosts = gameState.getNumAgents() - 1
+
+        # Separate MAX layer to pull out actions.
+        for action in gameState.getLegalActions(agent):
+            successor = gameState.generateSuccessor(agent, action)
+            actions[self.expectimax(successor, agent + 1, depth + 1)] = action
+        return actions[max(actions)]
+        #util.raiseNotDefined()
 
 def betterEvaluationFunction(currentGameState):
     """
